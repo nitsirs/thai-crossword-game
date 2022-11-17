@@ -38,6 +38,7 @@ let challenge;
 let cell;
 let newCells;
 let loadDelay;
+let matchIDText;
 
 function formatTime(seconds) {
   // Minutes
@@ -568,7 +569,7 @@ class WaitRoom extends Phaser.Scene {
         fill: "#fff",
         align: "center",
       }).setOrigin(0.5, 0.5);
-      this.add
+      matchIDText = this.add
       .text(625 / 2, 300, matchID, {
         fontSize: "50px",
         fill: "#fff",
@@ -609,7 +610,9 @@ class WaitRoom extends Phaser.Scene {
         
       });
   }
-  update() {}
+  update() {
+    matchIDText.setText(matchID);
+  }
 }
 
 // Create a new Phaser game.
