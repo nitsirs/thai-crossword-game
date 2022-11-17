@@ -1,0 +1,33 @@
+{
+  "name": "boardgameio-and-phaser-demo",
+  "version": "1.0.0",
+  "description": "A very basic example of using boardgame.io and Phaser together.",
+  "main": "index.html",
+  "scripts": {
+    "start": "parcel index.html --open",
+    "build": "parcel build index.html",
+    "serve": "node -r esm src/server.js"
+  },
+  "dependencies": {
+    "boardgame.io": "0.44.4",
+    "esm": "^3.2.25",
+    "koa-static": "^5.0.0",
+    "phaser": "3.55.2",
+    "phaser3-rex-plugins": "^1.1.75",
+    "src": "^1.1.2"
+  },
+  "devDependencies": {
+    "parcel-bundler": "^1.6.1"
+  },
+  "keywords": [],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nitsirs/thai-crossword.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nitsirs/thai-crossword/issues"
+  },
+  "homepage": "https://github.com/nitsirs/thai-crossword#readme"
+}
