@@ -4,14 +4,15 @@
   "description": "The online version of Thai Crossword Game (known as KumKom).",
   "main": "index.html",
   "scripts": {
-    "start": "parcel index.html --open",
+    "start": "node -r esm server.js",
     "build": "parcel build index.html",
-    "serve": "node -r esm server.js"
+    "serve": "parcel index.html --open"
   },
   "dependencies": {
     "boardgame.io": "0.44.4",
     "esm": "^3.2.25",
     "koa-static": "^5.0.0",
+    "nanoid": "^3.3.4",
     "phaser": "3.55.2",
     "phaser3-rex-plugins": "^1.1.75",
     "src": "^1.1.2"

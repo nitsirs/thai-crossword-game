@@ -31,12 +31,13 @@ let myScore;
 let timeLoop = 0;
 let timePass;
 let blink;
-const gameTime = 13200;
+const gameTime = 1320000;
 let endTurnText;
 let gameOver;
 let challenge;
 let cell;
 let newCells;
+let loadDelay;
 
 function formatTime(seconds) {
   // Minutes
@@ -57,12 +58,12 @@ const COLOR_DARK = 0x260e04;
 
 const bgioClient = Client({
   game: Game,
-  multiplayer: SocketIO({ server: "https://thai-crossword-game.onrender.com" }),
+  multiplayer: SocketIO({ server: "http://localhost:8000/" /*"https://calm-bliss-365708.uc.r.appspot.com"*/ }),
   playerID,
   matchID,
   playerCredential,
 });
-const lobbyClient = new LobbyClient({ server: "https://thai-crossword-game.onrender.com/" });
+const lobbyClient = new LobbyClient({ server: "http://localhost:8000/"/*"https://calm-bliss-365708.uc.r.appspot.com"*/ });
 let state;
 let stack;
 
@@ -377,12 +378,14 @@ class BoardScene extends Phaser.Scene {
     // timerText click
     timerText.setInteractive();
     timerText.on("pointerdown", () => {
-      // stack length = 0
-      if (bgioClient.getState().G.players[playerID].stack.length == 0) {
-        switchTurn();
-      } else {
-        switchTurn();
-      }
+      switchTurn();
+      timerText.disableInteractive();
+      blink.stop();
+      endTurnText.alpha = 0;
+      timerText.alpha = 1;
+      timer.paused = true;
+      this.input.enabled = false;
+      
     });
 
     // Subscribe to boardgame.io updates.
@@ -416,12 +419,14 @@ class BoardScene extends Phaser.Scene {
         endTurnText.alpha = 1;
         timer.paused = false;
         this.input.enabled = true;
+        timerText.setInteractive();
       } else {
         blink.stop();
         endTurnText.alpha = 0;
         timerText.alpha = 1;
         timer.paused = true;
         this.input.enabled = false;
+        timerText.disableInteractive();
       }
 
       // check if game end
@@ -501,24 +506,29 @@ class Lobby extends Phaser.Scene {
       .setOrigin(0.5)
       .setInteractive();
     createButton.on("pointerdown", async () => {
+      // disable button input for 1 sec
+      createButton.disableInteractive();
+      setTimeout(() => {
+        createButton.setInteractive();
+      }, 2000);
       matchID = await lobbyClient.createMatch("default", {
         numPlayers: 2,
       });
-      console.log(matchID.matchID);
+      matchID = matchID.matchID
       const { playerCredentials } = await lobbyClient.joinMatch(
         "default",
-        matchID.matchID,
+        matchID,
         { playerName: "player", playerID: "0" }
       );
       playerID = "0";
       playerCredential = playerCredentials;
-
+      console.log(playerCredential)
       bgioClient.start();
       bgioClient.updatePlayerID(playerID);
-      bgioClient.updateMatchID(matchID.matchID);
+      bgioClient.updateMatchID(matchID);
       bgioClient.updateCredentials(playerCredentials);
       state = bgioClient.getState();
-      this.scene.start("BoardScene");
+      this.scene.start("WaitRoom");
     });
     joinButton.on("pointerdown", async () => {
       matchID = prompt("Enter matchID");
@@ -542,6 +552,56 @@ class Lobby extends Phaser.Scene {
   }
   update() {}
 }
+class WaitRoom extends Phaser.Scene {
+  constructor() {
+    super("WaitRoom");
+  }
+  preload() {}
+  create() {
+    this.add
+      .text(625 / 2, 30, "Wait Room", {
+        fontSize: "32px",
+        fill: "#fff",
+        align: "center",
+      })
+      .setOrigin(0.5, 0.5);
+    this.add
+      .text(625 / 2, 60, "Thai Crossword", {
+        fontSize: "22px",
+        fill: "#fff",
+        align: "center",
+      })
+      .setOrigin(0.5, 0.5);
+      // show matchID in wait room
+    this.add
+      .text(625 / 2, 230, "MatchID:", {
+        fontSize: "22px",
+        fill: "#fff",
+        align: "center",
+      }).setOrigin(0.5, 0.5);
+      this.add
+      .text(625 / 2, 300, matchID, {
+        fontSize: "50px",
+        fill: "#fff",
+        backgroundColor: "#33e",
+        padding: 10,
+        align: "center",
+      }).setOrigin(0.5, 0.5);
+
+      bgioClient.subscribe((state) => {
+        // Bail out of updates if Phaser isn’t running or there’s no state.
+        console.log("subscribe");
+  
+        if (!state || !scene.isRunning) return;
+        if (state === null) alert("state is null");
+        //check if player 1 join
+        if(bgioClient.matchData[1].isConnected){
+          this.scene.start("BoardScene");
+        }
+      });
+  }
+  update() {}
+}
 
 // Create a new Phaser game.
 const scene = new Phaser.Game({
@@ -553,7 +613,7 @@ const scene = new Phaser.Game({
     width: 625,
     height: 625,
   },
-  scene: [Lobby, BoardScene],
+  scene: [Lobby, WaitRoom, BoardScene],
   /*plugins: {
     scene: [
       {
