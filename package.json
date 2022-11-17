@@ -6,7 +6,7 @@
   "scripts": {
     "start": "parcel index.html --open",
     "build": "parcel build index.html",
-    "serve": "node -r esm src/server.js"
+    "serve": "node -r esm server.js"
   },
   "dependencies": {
     "boardgame.io": "0.44.4",
