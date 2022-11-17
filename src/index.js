@@ -546,7 +546,7 @@ class WaitRoom extends Phaser.Scene {
     super("WaitRoom");
   }
   preload() {}
-  create() {
+  async create() {
     this.add
       .text(625 / 2, 30, "Wait Room", {
         fontSize: "32px",
@@ -576,6 +576,7 @@ class WaitRoom extends Phaser.Scene {
         padding: 10,
         align: "center",
       }).setOrigin(0.5, 0.5);
+      
       matchID = await lobbyClient.createMatch("default", {
         numPlayers: 2,
       });
@@ -593,7 +594,9 @@ class WaitRoom extends Phaser.Scene {
       bgioClient.updateMatchID(matchID);
       bgioClient.updateCredentials(playerCredentials);
       state = bgioClient.getState();
+
       const unsubscribe = bgioClient.subscribe((state) => {
+
         // Bail out of updates if Phaser isn’t running or there’s no state.
         if (!state || !scene.isRunning) return;
         if (state === null) alert("state is null");
