@@ -58,12 +58,12 @@ const COLOR_DARK = 0x260e04;
 
 const bgioClient = Client({
   game: Game,
-  multiplayer: SocketIO({ server: "https://thai-crossword-game.onrender.com" }),
+  multiplayer: SocketIO({ server: "http://localhost:8000" }),
   playerID,
   matchID,
   playerCredential,
 });
-const lobbyClient = new LobbyClient({ server: "https://thai-crossword-game.onrender.com" });
+const lobbyClient = new LobbyClient({ server: "http://localhost:8000" });
 let state;
 let stack;
 
@@ -77,16 +77,10 @@ class BoardScene extends Phaser.Scene {
     super("BoardScene");
   }
   preload() {
-    this.load.image("board", images["board"]);
-    Object.keys(characterScore).map((character) => {
-      this.load.image(character.charAt(0), characters[character.charAt(0)]);
-    });
-    unlimitedSet.map((vowel) => {
-      this.load.image(vowel.charAt(0), vowels[vowel.charAt(0)]);
-    });
-    this.load.image("tab", images["tab"]);
+    
   }
   create() {
+    console.log("create");
     // Get state from boardgame.io and use it if available.
     board = this.add.image(0, 0, "board").setOrigin(0, 0);
     charTab = this.add.image(25, 560, "tab").setOrigin(0, 0);
@@ -428,7 +422,7 @@ class BoardScene extends Phaser.Scene {
         this.input.enabled = false;
         timerText.disableInteractive();
       }
-
+      
       // check if game end
       if (ctx.gameover) {
         let result =
@@ -445,11 +439,13 @@ class BoardScene extends Phaser.Scene {
         blink.stop();
         this.input.enabled = false;
         this.children.bringToTop(gameOver);
+        
       }
     });
   }
   update() {
     // update timer
+    console.log("update");
     if (timeLoop > 0) {
       timePass = Math.floor(
         (gameTime / 1000) * (timeLoop - 1) +
@@ -467,7 +463,16 @@ class Lobby extends Phaser.Scene {
   constructor() {
     super("Lobby");
   }
-  preload() {}
+  preload() {
+    this.load.image("board", images["board"]);
+    Object.keys(characterScore).map((character) => {
+      this.load.image(character.charAt(0), characters[character.charAt(0)]);
+    });
+    unlimitedSet.map((vowel) => {
+      this.load.image(vowel.charAt(0), vowels[vowel.charAt(0)]);
+    });
+    this.load.image("tab", images["tab"]);
+  }
   async create() {
     this.add
       .text(625 / 2, 30, "Lobby", {
@@ -587,17 +592,18 @@ class WaitRoom extends Phaser.Scene {
         padding: 10,
         align: "center",
       }).setOrigin(0.5, 0.5);
-
-      bgioClient.subscribe((state) => {
+      
+      const unsubscribe = bgioClient.subscribe((state) => {
         // Bail out of updates if Phaser isn’t running or there’s no state.
-        console.log("subscribe");
-  
         if (!state || !scene.isRunning) return;
         if (state === null) alert("state is null");
         //check if player 1 join
         if(bgioClient.matchData[1].isConnected){
           this.scene.start("BoardScene");
+          unsubscribe();
+          console.log('unsubscribe')
         }
+        
       });
   }
   update() {}
