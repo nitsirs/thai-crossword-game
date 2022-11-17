@@ -1,7 +1,7 @@
 {
-  "name": "boardgameio-and-phaser-demo",
+  "name": "thai-crossword-game",
   "version": "1.0.0",
-  "description": "A very basic example of using boardgame.io and Phaser together.",
+  "description": "The online version of Thai Crossword Game (known as KumKom).",
   "main": "index.html",
   "scripts": {
     "start": "parcel index.html --open",
