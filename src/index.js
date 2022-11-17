@@ -512,6 +512,7 @@ class Lobby extends Phaser.Scene {
     createButton.on("pointerdown", async () => {
       // disable button input for 1 sec
       createButton.disableInteractive();
+      this.scene.start("WaitRoom");
       setTimeout(() => {
         createButton.setInteractive();
       }, 2000);
@@ -532,7 +533,7 @@ class Lobby extends Phaser.Scene {
       bgioClient.updateMatchID(matchID);
       bgioClient.updateCredentials(playerCredentials);
       state = bgioClient.getState();
-      this.scene.start("WaitRoom");
+      
     });
     joinButton.on("pointerdown", async () => {
       matchID = prompt("Enter matchID");
