@@ -58,12 +58,12 @@ const COLOR_DARK = 0x260e04;
 
 const bgioClient = Client({
   game: Game,
-  multiplayer: SocketIO({ server: "http://localhost:8000" }),
+  multiplayer: SocketIO({ server: "crossword.nitsir.com" }),
   playerID,
   matchID,
   playerCredential,
 });
-const lobbyClient = new LobbyClient({ server: "http://localhost:8000" });
+const lobbyClient = new LobbyClient({ server: "crossword.nitsir.com" });
 let state;
 let stack;
 
