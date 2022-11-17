@@ -57,12 +57,12 @@ const COLOR_DARK = 0x260e04;
 
 const bgioClient = Client({
   game: Game,
-  multiplayer: SocketIO({ server: "localhost:8000" }),
+  multiplayer: SocketIO({ server: "https://thai-crossword-game.onrender.com" }),
   playerID,
   matchID,
   playerCredential,
 });
-const lobbyClient = new LobbyClient({ server: "http://localhost:8000" });
+const lobbyClient = new LobbyClient({ server: "https://thai-crossword-game.onrender.com/" });
 let state;
 let stack;
 
