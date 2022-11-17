@@ -445,7 +445,6 @@ class BoardScene extends Phaser.Scene {
   }
   update() {
     // update timer
-    console.log("update");
     if (timeLoop > 0) {
       timePass = Math.floor(
         (gameTime / 1000) * (timeLoop - 1) +
