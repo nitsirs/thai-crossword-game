@@ -63,32 +63,31 @@ const bgioClient = Client({
   matchID,
   playerCredential,
 });
-const lobbyClient = new LobbyClient({ server: "https://crossword.nitsir.com/" });
+const lobbyClient = new LobbyClient({
+  server: "https://crossword.nitsir.com/",
+});
 let state;
 let stack;
 
 // disconnect from the server
 async function exit() {
-  console.log('leave match', matchID)
-  await lobbyClient.leaveMatch('default', matchID, {
+  console.log("leave match", matchID);
+  await lobbyClient.leaveMatch("default", matchID, {
     playerID: playerID,
     credentials: playerCredential,
   });
   bgioClient.stop();
 }
 // trigger function on refresh
-window.onbeforeunload = function() {
+window.onbeforeunload = function () {
   exit();
-}
-
+};
 
 class BoardScene extends Phaser.Scene {
   constructor() {
     super("BoardScene");
   }
-  preload() {
-    
-  }
+  preload() {}
   create() {
     console.log("create");
     // Get state from boardgame.io and use it if available.
@@ -309,7 +308,12 @@ class BoardScene extends Phaser.Scene {
         if (gameObject.getData("type") == "char") {
           let i = (gameObject.y - boardOffset[1]) / 24 + 1;
           let j = (gameObject.x - boardOffset[0]) / 32;
-          if (!(defaultVal.includes(cell[i][j])) && !(newCells[i][j] === 1)) {
+
+          if (
+            !defaultVal.includes(cell[i][j]) &&
+            !(newCells[i][j] === 1) &&
+            !(i < 1 || j < 0 || i > 17 || j > 14)
+          ) {
             canreplace = confirm(
               "Are you sure you want to replace this letter?"
             );
@@ -319,7 +323,11 @@ class BoardScene extends Phaser.Scene {
               replacable = true;
             }
           }
-          if(newCells[i][j] == 1){
+          if (newCells[i][j] == 1) {
+            replacable = false;
+          }
+          // outside the board
+          if (i < 0 || j < 0 || i > 18 || j > 14) {
             replacable = false;
           }
           if (replacable) {
@@ -330,11 +338,11 @@ class BoardScene extends Phaser.Scene {
             );
           }
         } else if (gameObject.getData("type") == "vowel") {
-          bgioClient.moves.setChar(
-            (gameObject.y - (boardOffset[1] - 16)) / 24,
-            (gameObject.x - boardOffset[0]) / 32,
-            gameObject.getData("char")
-          );
+          let i = (gameObject.y - (boardOffset[1] - 16)) / 24;
+          let j = (gameObject.x - boardOffset[0]) / 32;
+          if (!(i < 0 || j < 0 || i > 18 || j > 14)) {
+            bgioClient.moves.setChar(i, j, gameObject.getData("char"));
+          }
         }
 
         // drag within board
@@ -389,7 +397,6 @@ class BoardScene extends Phaser.Scene {
       timerText.alpha = 1;
       timer.paused = true;
       this.input.enabled = false;
-      
     });
 
     // Subscribe to boardgame.io updates.
@@ -432,7 +439,7 @@ class BoardScene extends Phaser.Scene {
         this.input.enabled = false;
         timerText.disableInteractive();
       }
-      
+
       // check if game end
       if (ctx.gameover) {
         let result =
@@ -449,7 +456,6 @@ class BoardScene extends Phaser.Scene {
         blink.stop();
         this.input.enabled = false;
         this.children.bringToTop(gameOver);
-        
       }
     });
   }
@@ -528,7 +534,7 @@ class Lobby extends Phaser.Scene {
       matchID = await lobbyClient.createMatch("default", {
         numPlayers: 2,
       });
-      matchID = matchID.matchID
+      matchID = matchID.matchID;
       const { playerCredentials } = await lobbyClient.joinMatch(
         "default",
         matchID,
@@ -536,7 +542,7 @@ class Lobby extends Phaser.Scene {
       );
       playerID = "0";
       playerCredential = playerCredentials;
-      console.log(playerCredential)
+      console.log(playerCredential);
       bgioClient.start();
       bgioClient.updatePlayerID(playerID);
       bgioClient.updateMatchID(matchID);
@@ -586,34 +592,35 @@ class WaitRoom extends Phaser.Scene {
         align: "center",
       })
       .setOrigin(0.5, 0.5);
-      // show matchID in wait room
+    // show matchID in wait room
     this.add
       .text(625 / 2, 230, "MatchID:", {
         fontSize: "22px",
         fill: "#fff",
         align: "center",
-      }).setOrigin(0.5, 0.5);
-      this.add
+      })
+      .setOrigin(0.5, 0.5);
+    this.add
       .text(625 / 2, 300, matchID, {
         fontSize: "50px",
         fill: "#fff",
         backgroundColor: "#33e",
         padding: 10,
         align: "center",
-      }).setOrigin(0.5, 0.5);
-      
-      const unsubscribe = bgioClient.subscribe((state) => {
-        // Bail out of updates if Phaser isn’t running or there’s no state.
-        if (!state || !scene.isRunning) return;
-        if (state === null) alert("state is null");
-        //check if player 1 join
-        if(bgioClient.matchData[1].isConnected){
-          this.scene.start("BoardScene");
-          unsubscribe();
-          console.log('unsubscribe')
-        }
-        
-      });
+      })
+      .setOrigin(0.5, 0.5);
+
+    const unsubscribe = bgioClient.subscribe((state) => {
+      // Bail out of updates if Phaser isn’t running or there’s no state.
+      if (!state || !scene.isRunning) return;
+      if (state === null) alert("state is null");
+      //check if player 1 join
+      if (bgioClient.matchData[1].isConnected) {
+        this.scene.start("BoardScene");
+        unsubscribe();
+        console.log("unsubscribe");
+      }
+    });
   }
   update() {}
 }
