@@ -522,23 +522,6 @@ class Lobby extends Phaser.Scene {
     createButton.on("pointerdown", async () => {
       // disable button input for 1 sec
       createButton.disableInteractive();
-      matchID = await lobbyClient.createMatch("default", {
-        numPlayers: 2,
-      });
-      const { playerCredentials } = await lobbyClient.joinMatch(
-        "default",
-        matchID.matchID,
-        { playerName: "player", playerID: "0" }
-      );
-      matchID = matchID.matchID
-      playerID = "0";
-      playerCredential = playerCredentials;
-      console.log(playerCredential)
-      bgioClient.start();
-      bgioClient.updatePlayerID(playerID);
-      bgioClient.updateMatchID(matchID);
-      bgioClient.updateCredentials(playerCredentials);
-      state = bgioClient.getState();
       this.scene.start("WaitRoom");
       setTimeout(() => {
         createButton.setInteractive();
@@ -604,6 +587,23 @@ class WaitRoom extends Phaser.Scene {
         align: "center",
       }).setOrigin(0.5, 0.5);
       
+      matchID = await lobbyClient.createMatch("default", {
+        numPlayers: 2,
+      });
+      const { playerCredentials } = await lobbyClient.joinMatch(
+        "default",
+        matchID.matchID,
+        { playerName: "player", playerID: "0" }
+      );
+      matchID = matchID.matchID
+      playerID = "0";
+      playerCredential = playerCredentials;
+      console.log(playerCredential)
+      bgioClient.start();
+      bgioClient.updatePlayerID(playerID);
+      bgioClient.updateMatchID(matchID);
+      bgioClient.updateCredentials(playerCredentials);
+      state = bgioClient.getState();
 
       const unsubscribe = bgioClient.subscribe((state) => {
         // Bail out of updates if Phaser isn’t running or there’s no state.
