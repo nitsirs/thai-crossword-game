@@ -38,6 +38,7 @@ let challenge;
 let cell;
 let newCells;
 let loadDelay;
+let matchIDText;
 
 function formatTime(seconds) {
   // Minutes
@@ -531,23 +532,7 @@ class Lobby extends Phaser.Scene {
       setTimeout(() => {
         createButton.setInteractive();
       }, 2000);
-      matchID = await lobbyClient.createMatch("default", {
-        numPlayers: 2,
-      });
-      matchID = matchID.matchID;
-      const { playerCredentials } = await lobbyClient.joinMatch(
-        "default",
-        matchID,
-        { playerName: "player", playerID: "0" }
-      );
-      playerID = "0";
-      playerCredential = playerCredentials;
-      console.log(playerCredential);
-      bgioClient.start();
-      bgioClient.updatePlayerID(playerID);
-      bgioClient.updateMatchID(matchID);
-      bgioClient.updateCredentials(playerCredentials);
-      state = bgioClient.getState();
+
       this.scene.start("WaitRoom");
     });
     joinButton.on("pointerdown", async () => {
@@ -577,7 +562,7 @@ class WaitRoom extends Phaser.Scene {
     super("WaitRoom");
   }
   preload() {}
-  create() {
+  async create() {
     this.add
       .text(625 / 2, 30, "Wait Room", {
         fontSize: "32px",
@@ -600,7 +585,7 @@ class WaitRoom extends Phaser.Scene {
         align: "center",
       })
       .setOrigin(0.5, 0.5);
-    this.add
+    matchIDText = this.add
       .text(625 / 2, 300, matchID, {
         fontSize: "50px",
         fill: "#fff",
@@ -610,6 +595,23 @@ class WaitRoom extends Phaser.Scene {
       })
       .setOrigin(0.5, 0.5);
 
+    matchID = await lobbyClient.createMatch("default", {
+      numPlayers: 2,
+    });
+    matchID = matchID.matchID;
+    const { playerCredentials } = await lobbyClient.joinMatch(
+      "default",
+      matchID,
+      { playerName: "player", playerID: "0" }
+    );
+    playerID = "0";
+    playerCredential = playerCredentials;
+    console.log(playerCredential);
+    bgioClient.start();
+    bgioClient.updatePlayerID(playerID);
+    bgioClient.updateMatchID(matchID);
+    bgioClient.updateCredentials(playerCredentials);
+    state = bgioClient.getState();
     const unsubscribe = bgioClient.subscribe((state) => {
       // Bail out of updates if Phaser isn’t running or there’s no state.
       if (!state || !scene.isRunning) return;
@@ -622,7 +624,9 @@ class WaitRoom extends Phaser.Scene {
       }
     });
   }
-  update() {}
+  update() {
+    matchIDText.setText(matchID);
+  }
 }
 
 // Create a new Phaser game.
