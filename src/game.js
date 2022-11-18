@@ -559,6 +559,13 @@ function calculateScore(G, ctx, arr, gcells) {
   console.log("verticalIntersect: ", verticalIntersect);
 
   // check parallel move
+  if (G.currentIndex.at(-2)[0]){
+  }else{
+    // print one move 100 times
+    for(let i = 0; i < 100; i++){
+      console.log("null");
+    }
+  }
 
   if (G.currentIndex.at(-2)[0]) {
     // not first move (not null)
