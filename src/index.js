@@ -69,8 +69,17 @@ let state;
 let stack;
 
 // disconnect from the server
-function exit() {
+async function exit() {
+  await lobbyClient.leaveMatch('default', matchID, {
+    playerID: playerID,
+    credentials: playerCredential,
+  });
   bgioClient.stop();
+}
+// trigger function on refresh
+window.onbeforeunload = function() {
+
+  exit();
 }
 
 class BoardScene extends Phaser.Scene {
