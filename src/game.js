@@ -499,7 +499,7 @@ function calculateScore(G, ctx, arr, gcells) {
   let newScore = 0;
   const multiplier = score.filter((_, i) => i % 2 === 1);
   let wordMultiplier = 1;
-  const multiplierTrans = newArr[0].map((_, i) => newArr.map((row) => row[i]));
+  const multiplierTrans = multiplier[0].map((_, i) => multiplier.map((row) => row[i]));
   let oneCount = 0; //move count (Bingo condition)
   // main linear
   newArr.map((row, i) => {
