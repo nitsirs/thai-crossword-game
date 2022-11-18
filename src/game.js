@@ -252,7 +252,7 @@ function isValidMove(G, ctx) {
       }
     });
   });
-  if (oneCount === 1) {
+  if (oneCount === 1 && G.replaced === false) {
     console.log("oneCount", oneCount);
     const horizontalIntersect = cells[onceIndex[0]].filter((value) =>
       charSet.includes(value)
@@ -559,8 +559,7 @@ function calculateScore(G, ctx, arr, gcells) {
   console.log("verticalIntersect: ", verticalIntersect);
 
   // check parallel move
-  console.log(G.currentIndex.at(-2)[0])
-  console.log(G.currentIndex.at(-2)[1])
+
   if (G.currentIndex.at(-2)[0]) {
     // not first move (not null)
     if (G.currentIndex.at(-1)[0] !== G.currentIndex.at(-1)[1]) {
