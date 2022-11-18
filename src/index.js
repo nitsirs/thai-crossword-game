@@ -590,12 +590,12 @@ class WaitRoom extends Phaser.Scene {
       matchID = await lobbyClient.createMatch("default", {
         numPlayers: 2,
       });
-      matchID = matchID.matchID
       const { playerCredentials } = await lobbyClient.joinMatch(
         "default",
-        matchID,
+        matchID.matchID,
         { playerName: "player", playerID: "0" }
       );
+      matchID = matchID.matchID
       playerID = "0";
       playerCredential = playerCredentials;
       console.log(playerCredential)
