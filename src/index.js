@@ -70,7 +70,6 @@ let stack;
 
 // disconnect from the server
 async function exit() {
-  console.log('leave match', matchID)
   await lobbyClient.leaveMatch('default', matchID, {
     playerID: playerID,
     credentials: playerCredential,
