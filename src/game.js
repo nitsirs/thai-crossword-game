@@ -212,7 +212,6 @@ function isValidMove(G, ctx) {
   const arrTrans = arr[0].map((_, i) => arr.map((row) => row[i]));
   const cells = Array.from(G.cells);
   const cellsTrans = cells[0].map((_, i) => cells.map((row) => row[i]));
-  console.log(arr);
   const linearCount = [0, 0];
   const index = [0, 0, 0, 0]; //[first, last, rowNum/colNum, dimension] && index[0]=-1 when move is not valid
 
@@ -480,7 +479,6 @@ function fillLine(G, ctx, index) {
     }
   }
 
-  console.log(arr);
   G.newCells = arr;
 }
 function calculateScore(G, ctx, arr, gcells) {
@@ -564,6 +562,14 @@ function calculateScore(G, ctx, arr, gcells) {
 
   if (G.currentIndex.at(-2)[0]) {
     // not first move (not null)
+    if(G.currentIndex.at(-2)[0] !== G.currentIndex.at(-2)[1]){
+    }
+    else{
+      // log hello world 100 times
+      for(let i = 0; i < 100; i++){
+        console.log("hello world");
+      }
+    }
     if (G.currentIndex.at(-2)[0] !== G.currentIndex.at(-2)[1]) {
       console.log(G.currentIndex.at(-2)[3]);
       //screen out once move
