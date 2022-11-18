@@ -563,7 +563,7 @@ function calculateScore(G, ctx, arr, gcells) {
   console.log(G.currentIndex.at(-2)[1])
   if (G.currentIndex.at(-2)[0]) {
     // not first move (not null)
-    if (G.currentIndex.at(-2)[0] !== G.currentIndex.at(-2)[1]) {
+    if (G.currentIndex.at(-1)[0] !== G.currentIndex.at(-1)[1]) {
       console.log(G.currentIndex.at(-2)[3]);
       //screen out once move
       if (
