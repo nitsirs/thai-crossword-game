@@ -59,7 +59,7 @@ export const Game = {
         console.log("วางตัวอักษรผิด วางใหม่ครับ");
         return;
       }
-      
+
       fillStack(G, ctx, playerID);
       G.players[playerID].score.push(scoreThisTurn);
       G.openScore[playerID] = true; //TODO: add snackbar to show score
@@ -75,7 +75,11 @@ export const Game = {
           G.players["1"].score.reduce((a, b) => a + b, 0),
         ];
         console.log("bland score", score[0], score[1]);
-        console.log('stack length',G.players["0"].stack.length,G.players["1"].stack.length)
+        console.log(
+          "stack length",
+          G.players["0"].stack.length,
+          G.players["1"].stack.length
+        );
         if (G.players["0"].stack.length === 0) {
           let addScoreEnd = 0;
           G.players["1"].stack.map((char) => {
@@ -120,9 +124,8 @@ export const Game = {
         .fill(null)
         .map(() => new Array(15).fill(0));
       G.replaced = false;
-      
+
       ctx.events.endTurn();
-      
     },
     setTimePass: (G, ctx, playerID, time) => {
       G.players[playerID].timePass = time;
@@ -252,7 +255,7 @@ function isValidMove(G, ctx) {
       }
     });
   });
-  if (oneCount === 1 && G.replaced === false) {
+  if (oneCount === 1) {
     console.log("oneCount", oneCount);
     const horizontalIntersect = cells[onceIndex[0]].filter((value) =>
       charSet.includes(value)
@@ -428,6 +431,22 @@ function fillLine(G, ctx, index) {
         break;
       }
     }
+    // SPEACIAL CASE
+    // replaced character in the middle of the word
+    // fill the right side of the word (left is already filled)
+    if (G.replaced === true) {
+      for (let x = 1; x < arr.length; x++) {
+        if (
+          !defaultVal.includes(G.cells[index[2]][index[1] + x]) &&
+          G.cells[index[2]][index[1] + x] !== undefined
+        ) {
+          arr[index[2]][index[1] + x] = -1;
+        } else {
+          break;
+        }
+      }
+    }
+
     //vertical
     if (index[3] === 1) {
       if (
@@ -497,7 +516,9 @@ function calculateScore(G, ctx, arr, gcells) {
   let newScore = 0;
   const multiplier = score.filter((_, i) => i % 2 === 1);
   let wordMultiplier = 1;
-  const multiplierTrans = multiplier[0].map((_, i) => multiplier.map((row) => row[i]));
+  const multiplierTrans = multiplier[0].map((_, i) =>
+    multiplier.map((row) => row[i])
+  );
   let oneCount = 0; //move count (Bingo condition)
   // main linear
   newArr.map((row, i) => {
@@ -582,26 +603,28 @@ function calculateScore(G, ctx, arr, gcells) {
       }
     }
   }
-  if(G.replaced === true){
+  if (G.replaced === true) {
     parallelMove = true;
   }
   // last case for palallel scoring; check the manual
   // top left right bottom
-  if((G.currentIndex.at(-2)[3] === 0 && G.currentIndex.at(-1)[3] === 1) || (G.currentIndex.at(-2)[3] === 1 && G.currentIndex.at(-1)[3] === 0)){
-    
-    if(G.currentIndex.at(-2)[0]-G.currentIndex.at(-1)[2] == 2){
+  if (
+    (G.currentIndex.at(-2)[3] === 0 && G.currentIndex.at(-1)[3] === 1) ||
+    (G.currentIndex.at(-2)[3] === 1 && G.currentIndex.at(-1)[3] === 0)
+  ) {
+    if (G.currentIndex.at(-2)[0] - G.currentIndex.at(-1)[2] == 2) {
       // vertical->horizontal: top
       console.log("top");
       parallelMove = true;
-    }else if(G.currentIndex.at(-2)[1]-G.currentIndex.at(-1)[2] == -2){
+    } else if (G.currentIndex.at(-2)[1] - G.currentIndex.at(-1)[2] == -2) {
       // vertical->horizontal: bottom
       console.log("bottom");
       parallelMove = true;
-    }else if(G.currentIndex.at(-2)[0]-G.currentIndex.at(-1)[2] == 1){
+    } else if (G.currentIndex.at(-2)[0] - G.currentIndex.at(-1)[2] == 1) {
       // horizontal->vertical: left
       console.log("left");
       parallelMove = true;
-    }else if(G.currentIndex.at(-2)[1]-G.currentIndex.at(-1)[2] == -1){
+    } else if (G.currentIndex.at(-2)[1] - G.currentIndex.at(-1)[2] == -1) {
       // horizontal->vertical: right
       console.log("right");
       parallelMove = true;
@@ -616,7 +639,7 @@ function calculateScore(G, ctx, arr, gcells) {
       }
     });
   });
-  if(minusOne === true){
+  if (minusOne === true) {
     parallelMove = false;
   }
 
