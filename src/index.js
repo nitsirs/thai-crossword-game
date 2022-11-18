@@ -78,6 +78,7 @@ async function exit() {
 }
 // trigger function on refresh
 window.onbeforeunload = function() {
+
   exit();
 }
 
@@ -605,6 +606,7 @@ class WaitRoom extends Phaser.Scene {
       state = bgioClient.getState();
 
       const unsubscribe = bgioClient.subscribe((state) => {
+
         // Bail out of updates if Phaser isn’t running or there’s no state.
         if (!state || !scene.isRunning) return;
         if (state === null) alert("state is null");
