@@ -53,7 +53,15 @@ export const Game = {
     isReplaced: (G, ctx, val) => {
       G.replaced = val;
     },
-    addScore: (G, ctx, playerID) => {
+    addScore: (G, ctx, playerID, pass = false) => {
+      if(pass){
+        fillStack(G, ctx, playerID);
+        G.players[playerID].score.push(0);
+        console.log("ขอเปลี่ยนตัว");
+        ctx.events.endTurn();
+        return;
+      }
+
       const scoreThisTurn = calculateScore(G, ctx, G.newCells, G.cells);
       if (scoreThisTurn === 0) {
         console.log("วางตัวอักษรผิด วางใหม่ครับ");
@@ -94,8 +102,8 @@ export const Game = {
           score[1] += addScoreEnd * 2;
         }
         console.log("add char dif", score[0], score[1]);
-        score[0] -= Math.floor(G.players["0"].timePass / 60) * 10;
-        score[1] -= Math.floor(G.players["1"].timePass / 60) * 10;
+        score[0] -= Math.ceil(G.players["0"].timePass / 60) * 10;
+        score[1] -= Math.ceil(G.players["1"].timePass / 60) * 10;
         console.log("add time dif", score[0], score[1]);
 
         // update final score state

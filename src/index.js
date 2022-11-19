@@ -39,6 +39,8 @@ let cell;
 let newCells;
 let loadDelay;
 let matchIDText;
+let changeCharText;
+let dialog;
 
 function formatTime(seconds) {
   // Minutes
@@ -150,6 +152,170 @@ class BoardScene extends Phaser.Scene {
       fontStyle: "bold",
     });
 
+    changeCharText = this.add.text(0, 250, "Change\ncharacter", {
+      fontSize: "15px",
+      backgroundColor: "#000",
+      padding: 3,
+      fontStyle: "bold",
+      align: "center",
+    });
+
+    const createLabel = function (scene, text, name) {
+      if (name === undefined) {
+        name = text;
+      }
+      return scene.rexUI.add.label({
+        background: scene.rexUI.add.roundRectangle(0, 0, 100, 40, 20, 0x6a4f4b),
+
+        text: scene.add.text(0, 0, text, {
+          fontSize: "24px",
+        }),
+
+        space: {
+          left: 10,
+          right: 10,
+          top: 10,
+          bottom: 10,
+        },
+
+        name: name,
+      });
+    };
+    changeCharText.setInteractive();
+    changeCharText.on("pointerdown", () => {
+      // Change stack request dialog
+      //loop through all chlidren in this scene
+      this.children.each(function (child) {
+        child.disableInteractive();
+      });
+
+
+
+      dialog = this.rexUI.add
+        .dialog({
+          x: 350,
+          y: 300,
+
+          background: this.rexUI.add.roundRectangle(
+            0,
+            0,
+            100,
+            100,
+            20,
+            0x3e2723
+          ),
+
+          title: this.rexUI.add.label({
+            background: this.rexUI.add.roundRectangle(
+              0,
+              0,
+              100,
+              40,
+              20,
+              0x1b0000
+            ),
+            text: this.add.text(0, 0, "Change character cards", {
+              fontSize: "24px",
+            }),
+            space: {
+              left: 15,
+              right: 15,
+              top: 10,
+              bottom: 10,
+            },
+          }),
+          content: this.add.text(
+            0,
+            0,
+            "Which letters do you choose to change?",
+            {
+              fontSize: "18px",
+            }
+          ),
+
+          choicesType: "wrap-checkboxes",
+          // loop through the letters and create a checkbox for each
+          choices: stack.map((letter, index) => {
+            return createLabel(this, "" + letter, "" + index);
+          }),
+          choicesSetValueCallback: function (button, value) {
+            if (value) {
+              button.getElement("background").setStrokeStyle(1, 0xffffff);
+            } else {
+              button.getElement("background").setStrokeStyle();
+            }
+          },
+
+          actions: [createLabel(this, "Close"), createLabel(this, "OK")],
+
+          space: {
+            title: 25,
+            content: 25,
+            choices: 25,
+            choice: 15,
+            action: 15,
+
+            left: 25,
+            right: 25,
+            top: 25,
+            bottom: 25,
+          },
+
+          align: {
+            actions: "right",
+          },
+
+          expand: {
+            content: false, // Content is a pure text object
+          },
+        })
+        .layout()
+        //.drawBounds(this.add.graphics(), 0xff0000)
+        .popUp(200);
+      dialog.on(
+        "button.click",
+        function (button, groupName, index, pointer, event) {
+
+          if (groupName === "actions") {
+            if (index === 0) {
+              dialog.clearChoicesButtonStates();
+              closeDialog(this);
+            } else {
+              // OK button
+              var states = dialog.getChoicesButtonStates();
+              Object.keys(states)
+                .reverse()
+                .forEach(function (name) {
+                  let idx = parseInt(name);
+                  if (states[name]) {
+                    console.log(idx);
+                    stack.splice(idx, 1);
+                    console.log(stack);
+                  }
+                });
+              console.log(stack);
+              bgioClient.moves.setStack(playerID, stack);
+              switchTurn(true);
+              closeDialog(this);
+            }
+            
+          } else {
+            //this.print.text += `${groupName}[${index}] = ${button.text}\n`;
+          }
+        },
+        this
+      );
+    });
+    function closeDialog(obj) {
+      dialog.fadeOut(200).once("transitioncomplete", function () {
+        dialog.destroy();
+      });
+      obj.children.each(function (child) {
+        child.setInteractive();
+      });
+
+    }
+
     // map stack
     function mapStack(obj, stack) {
       console.log("mapStack");
@@ -248,7 +414,7 @@ class BoardScene extends Phaser.Scene {
         backgroundColor: "#fff",
       })
       .setOrigin(0.5, 0.5);
-
+    /*
     challenge = this.add.text(0, 250, "Challenge", {
       fontSize: "15px",
       backgroundColor: "#000",
@@ -258,7 +424,7 @@ class BoardScene extends Phaser.Scene {
     });
     challenge.setInteractive();
     challenge.on("pointerdown", () => {});
-
+    */
     // save x y position of char_card when drag start
     this.input.on("dragstart", function (pointer, gameObject, dragX, dragY) {
       if (
@@ -293,7 +459,9 @@ class BoardScene extends Phaser.Scene {
     });
 
     //ondrop
-    this.input.on("dragend", function (pointer, gameObject, dragX, dragY) {
+    this.input.on("dragend", function (pointer, gameObject, dragX, dragY) { 
+      // make changCharText invisible
+      changeCharText.setVisible(false);
       let row = gameObject.getData("row");
       let col = gameObject.getData("col");
       let idx = gameObject.getData("index");
@@ -381,10 +549,12 @@ class BoardScene extends Phaser.Scene {
     });
     console.log(stack);
 
-    function switchTurn() {
+    function switchTurn(pass = false) {
       bgioClient.moves.isValidMove();
       bgioClient.moves.setTimePass(playerID, timePass);
-      bgioClient.moves.addScore(playerID);
+      bgioClient.moves.addScore(playerID, (pass = pass));
+      // make changCharText visible
+      changeCharText.setVisible(true);
     }
 
     // end turn
@@ -640,7 +810,7 @@ const scene = new Phaser.Game({
     height: 625,
   },
   scene: [Lobby, WaitRoom, BoardScene],
-  /*plugins: {
+  plugins: {
     scene: [
       {
         key: "rexUI",
@@ -649,5 +819,5 @@ const scene = new Phaser.Game({
       },
       // ...
     ],
-  },*/
+  },
 });
